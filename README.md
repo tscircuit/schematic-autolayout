@@ -1,30 +1,28 @@
-# React + TypeScript + Vite
+# @tscircuit/autolayout
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Algorithms for automatic layout PCBs and Schematics
 
-Currently, two official plugins are available:
+For routing algorithms, see [@tscircuit/routing](https://github.com/tscircuit/routing)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Work In Progress
 
-## Expanding the ESLint configuration
+## Main Layout
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The main autolayout algorithm we're working on currently focuses on schematic
+layout and determines which of the following scenarios is the best fit:
 
-- Configure the top-level `parserOptions` property like this:
+1. Row layout (a simple row, e.g. multiple passives)
+2. Column layout (a simple column, e.g. multiple passives)
+3. Central LR bug with ascending columns
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+![](./docs/2024-04-24-22-36-58.png)
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Post-layout Processing
+
+In this stage, ports are aligned for the layout is adjusted for general orderly-ness.
+
+1. Port alignment
+2. Central LR Bug Only: Shift columns downward where the adjacent colum has the
+   same bottom net
+
+![](./docs/2024-04-24-22-39-24.png)
