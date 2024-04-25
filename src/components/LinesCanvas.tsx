@@ -16,12 +16,18 @@ export const LinesCanvas = ({ scene }: { scene: Scene }) => {
 
       const findPort = (
         port_id: string
-      ): { screenX: number; screenY: number } => {
+      ): { screenX: number; screenY: number } | null => {
         const [box_id] = port_id.split(".")
         const box = scene.boxes.find((b) => b.box_id === box_id)
-        if (!box) throw new Error(`Box not found: ${box_id}`)
+        if (!box) {
+          return null
+          //throw new Error(`Box not found: ${box_id}`)
+        }
         const port = box.ports.find((p) => p.port_id === port_id)
-        if (!port) throw new Error(`Port not found: ${port_id}`)
+        if (!port) {
+          return null
+          // throw new Error(`Port not found: ${port_id}`)
+        }
         const port_pos = {
           x: box.x + port.rx,
           y: box.y + port.ry,
@@ -36,6 +42,7 @@ export const LinesCanvas = ({ scene }: { scene: Scene }) => {
       for (const connection of scene.connections) {
         const A = findPort(connection.from)
         const B = findPort(connection.to)
+        if (A === null || B === null) continue
 
         ctx.beginPath()
         ctx.moveTo(A.screenX, A.screenY)
