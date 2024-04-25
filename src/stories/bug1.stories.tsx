@@ -1,8 +1,9 @@
-import { AttachableBox } from "../components/AttachableBox"
-import { Playground } from "../components/Playground"
 import { PlaygroundScene } from "../components/PlaygroundScene"
 import { scene } from "../lib/scene"
 
+/**
+ * This demonstrates a layout but doesn't do any routing algorithm
+ */
 export const bug1 = () => {
   return (
     <PlaygroundScene

@@ -15,3 +15,8 @@ export type Box = {
   y: number
   ports: Array<Port>
 }
+export type Net = {
+  net_id: string
+  is_power?: boolean
+  is_ground?: boolean
+}

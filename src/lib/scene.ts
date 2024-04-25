@@ -1,5 +1,5 @@
 import { getCcwPosition } from "./get-ccw-position"
-import { Box, Connection } from "./types"
+import { Box, Connection, Net } from "./types"
 /**
  * Build a scene with a chained builder
  *
@@ -12,6 +12,7 @@ import { Box, Connection } from "./types"
 export const scene = () => new SceneBuilder()
 
 export type Scene = {
+  nets: Array<Net>
   boxes: Array<Box>
   connections: Array<Connection>
 }
@@ -19,10 +20,17 @@ export type Scene = {
 class SceneBuilder {
   boxes: Array<Box>
   connections: Array<Connection>
+  nets: Array<Net>
 
   constructor() {
     this.boxes = []
     this.connections = []
+    this.nets = []
+  }
+
+  addNet(net_id: string, opts: { is_power?: boolean; is_ground?: boolean }) {
+    this.nets.push({ net_id, ...opts })
+    return this
   }
 
   addCcwBox(
@@ -139,6 +147,7 @@ class SceneBuilder {
     return {
       boxes: this.boxes,
       connections: this.connections,
+      nets: this.nets,
     }
   }
 }
