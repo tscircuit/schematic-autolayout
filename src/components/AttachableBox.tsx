@@ -2,6 +2,7 @@ import { applyToPoint, compose, translate } from "transformation-matrix"
 import { usePlaygroundContext } from "./PlaygroundContext"
 
 interface Props {
+  box_id?: string
   center: { x: number; y: number }
   width: number
   height: number
@@ -21,6 +22,7 @@ const addp = (p1: { x: number; y: number }, p2: { x: number; y: number }) => {
 }
 
 export const AttachableBox = ({
+  box_id,
   center,
   width,
   height,
@@ -45,8 +47,15 @@ export const AttachableBox = ({
           height: screen_height,
           left: screen_center.x - screen_width / 2,
           top: screen_center.y - screen_height / 2,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontFamily: "sans-serif",
+          fontSize: 11,
         }}
-      />
+      >
+        {box_id}
+      </div>
       {ports.map((port) => {
         const screen_port_position = applyToPoint(
           transform,

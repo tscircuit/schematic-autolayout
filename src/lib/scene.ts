@@ -56,7 +56,7 @@ class SceneBuilder {
     return this
   }
 
-  addLRBox(box_id: string, opts: { x: number; y: number }) {
+  addLrBox(box_id: string, opts: { x: number; y: number }) {
     this.boxes.push({
       box_id,
       x: opts.x,
@@ -64,13 +64,66 @@ class SceneBuilder {
       ports: [
         {
           port_id: `${box_id}.left`,
-          rx: -0.5,
+          rx: -0.3,
           ry: 0,
         },
         {
           port_id: `${box_id}.right`,
-          rx: 0.5,
+          rx: 0.3,
           ry: 0,
+        },
+      ],
+    })
+    return this
+  }
+
+  addTbBox(box_id: string, opts: { x: number; y: number }) {
+    this.boxes.push({
+      box_id,
+      x: opts.x,
+      y: opts.y,
+      ports: [
+        {
+          port_id: `${box_id}.top`,
+          rx: 0,
+          ry: 0.3,
+        },
+        {
+          port_id: `${box_id}.bottom`,
+          rx: 0,
+          ry: -0.3,
+        },
+      ],
+    })
+    return this
+  }
+
+  addTBox(box_id: string, opts: { x: number; y: number }) {
+    this.boxes.push({
+      box_id,
+      x: opts.x,
+      y: opts.y,
+      ports: [
+        {
+          port_id: `${box_id}.top`,
+          rx: 0,
+          ry: 0.1,
+        },
+      ],
+    })
+    return this
+  }
+
+  addBBox(box_id: string, opts: { x: number; y: number }) {
+    this.boxes.push({
+      box_id,
+      x: opts.x,
+      y: opts.y,
+      ports: [
+        {
+          port_id: `${box_id}.bottom`,
+          rx: 0,
+          ry: -0.1,
         },
       ],
     })
