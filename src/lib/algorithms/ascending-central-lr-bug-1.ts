@@ -110,8 +110,6 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
 
   slideBoxesConnectedToSameNet(new_boxes, connMap, netSet, scene)
 
-  centerSides(new_boxes, center_box)
-
   // Add boxes representing the net, anything with the same ascending_box_index
   // can share the same net box
   highest_ascending_box_index = Math.max(
@@ -122,22 +120,73 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
       const boxes_on_same_index = new_boxes
         .filter((b) => b.side === side)
         .filter((b) => b.ascending_box_index === i)
-      // if (boxes_on_same_index.length === 0) continue
-      // const x = -1.5 - i
-      // const y = i
-      // const box_id = `net_${i}`
-      // const net_box: BoxWithAscendingIndex = {
-      //   box_id,
-      //   x,
-      //   y,
-      //   side: "left",
-      //   ascending_port_index: 0,
-      //   ascending_box_index: i,
-      //   ports: [],
-      // }
-      // new_boxes.push(net_box)
+      if (boxes_on_same_index.length === 0) continue
+
+      /**
+       * Connections on each box e.g.
+       * [
+       *  [A.1, GND, A.2, PWR],
+       *  [B.1, GND, B.2, U1.4],
+       * ]
+       */
+      const connections_on_index: string[][] = boxes_on_same_index.map((b) =>
+        scene.connections
+          .filter(
+            (c) => c.from.startsWith(b.box_id) || c.to.startsWith(b.box_id)
+          )
+          .map((c) => (c.from.startsWith(b.box_id) ? c.to : c.from))
+      )
+
+      /**
+       * Net connections for each box (or maybe just is_power or is_ground)
+       * [
+       *   [GND, PWR],
+       *   [GND],
+       * ]
+       */
+      const net_connections = connections_on_index.map((clist) =>
+        clist.filter((c) => netSet.has(c))
+      )
+
+      /**
+       * Common nets between all boxes on this ascending index
+       * [{GND}]
+       */
+      const common_nets = net_connections
+        .reduce((acc, nets) => {
+          return acc.filter((n) => nets.includes(n))
+        }, net_connections[0])
+        .map((n) => scene.nets.find((net) => net.net_id === n))
+
+      const minOrMaxFunc = side === "left" ? Math.max : Math.min
+
+      const x = minOrMaxFunc(...boxes_on_same_index.map((b) => b.x))
+
+      for (const common_net of common_nets) {
+        // const y = i + (common_net?.is_ground ? -1 : 1)
+        const y = i - 1
+        const box_id = `net_${i}`
+        const net_box: BoxWithAscendingIndex = {
+          box_id,
+          x,
+          y,
+          side: "left",
+          ascending_port_index: 0,
+          ascending_box_index: i,
+          ports: [
+            {
+              port_id: `net_${i}.top`,
+              rx: 0,
+              ry: 0.1,
+            },
+          ],
+        }
+        new_boxes.push(net_box)
+      }
     }
   }
+
+  centerSides(new_boxes, center_box)
 
   const new_scene = {
     ...scene,
