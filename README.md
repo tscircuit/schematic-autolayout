@@ -1,5 +1,7 @@
 # @tscircuit/autolayout
 
+[Visual Examples](#)
+
 Algorithms for automatic layout PCBs and Schematics
 
 For routing algorithms, see [@tscircuit/routing](https://github.com/tscircuit/routing)

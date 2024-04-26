@@ -1,6 +1,5 @@
 import { Scene } from "../lib/scene"
 import { AttachableBox } from "./AttachableBox"
-import { BoxConnection } from "./BoxConnection"
 import { LinesCanvas } from "./LinesCanvas"
 import { Playground } from "./Playground"
 
