@@ -1,10 +1,11 @@
-import { Box, Port } from "../types"
+import { Box, Connection, Port } from "../types"
 import { getConnectionMap } from "./sub-algorithms/getConnectionMap"
 import { centerSides } from "./sub-algorithms/centerSides"
 import { findBoxWithMostPorts } from "./sub-algorithms/findBoxWithMostPorts"
 import { slideBoxesConnectedToSameNet } from "./sub-algorithms/slideBoxesConnectedToSameNet"
 import { LayoutAlgorithm } from "./type"
 import { removeAscendingBoxIndexGaps } from "./sub-algorithms/removeAscendingBoxIndexGaps"
+import { addBoxesForNetsRewriteNetsToSpecificAliases } from "./sub-algorithms/addBoxesForNetsRewriteNetsToSpecificAliases"
 
 export type BoxWithAscendingIndex = Box & {
   side: "left"
@@ -26,6 +27,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   const new_boxes: BoxWithAscendingIndex[] = JSON.parse(
     JSON.stringify(scene.boxes)
   )
+  const new_conns: Connection[] = JSON.parse(JSON.stringify(scene.connections))
 
   // TODO remove reset in prod
   for (const box of new_boxes) {
@@ -112,84 +114,18 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
 
   // Add boxes representing the net, anything with the same ascending_box_index
   // can share the same net box
-  highest_ascending_box_index = Math.max(
-    ...new_boxes.map((b) => b.ascending_box_index).filter((b) => !isNaN(b))
+  addBoxesForNetsRewriteNetsToSpecificAliases(
+    new_boxes,
+    scene,
+    netSet,
+    new_conns
   )
-  for (const side of ["left", "right"]) {
-    for (let i = 0; i < highest_ascending_box_index; i++) {
-      const boxes_on_same_index = new_boxes
-        .filter((b) => b.side === side)
-        .filter((b) => b.ascending_box_index === i)
-      if (boxes_on_same_index.length === 0) continue
-
-      /**
-       * Connections on each box e.g.
-       * [
-       *  [A.1, GND, A.2, PWR],
-       *  [B.1, GND, B.2, U1.4],
-       * ]
-       */
-      const connections_on_index: string[][] = boxes_on_same_index.map((b) =>
-        scene.connections
-          .filter(
-            (c) => c.from.startsWith(b.box_id) || c.to.startsWith(b.box_id)
-          )
-          .map((c) => (c.from.startsWith(b.box_id) ? c.to : c.from))
-      )
-
-      /**
-       * Net connections for each box (or maybe just is_power or is_ground)
-       * [
-       *   [GND, PWR],
-       *   [GND],
-       * ]
-       */
-      const net_connections = connections_on_index.map((clist) =>
-        clist.filter((c) => netSet.has(c))
-      )
-
-      /**
-       * Common nets between all boxes on this ascending index
-       * [{GND}]
-       */
-      const common_nets = net_connections
-        .reduce((acc, nets) => {
-          return acc.filter((n) => nets.includes(n))
-        }, net_connections[0])
-        .map((n) => scene.nets.find((net) => net.net_id === n))
-
-      const minOrMaxFunc = side === "left" ? Math.max : Math.min
-
-      const x = minOrMaxFunc(...boxes_on_same_index.map((b) => b.x))
-
-      for (const common_net of common_nets) {
-        // const y = i + (common_net?.is_ground ? -1 : 1)
-        const y = i - 1
-        const box_id = `net_${i}`
-        const net_box: BoxWithAscendingIndex = {
-          box_id,
-          x,
-          y,
-          side: "left",
-          ascending_port_index: 0,
-          ascending_box_index: i,
-          ports: [
-            {
-              port_id: `net_${i}.top`,
-              rx: 0,
-              ry: 0.1,
-            },
-          ],
-        }
-        new_boxes.push(net_box)
-      }
-    }
-  }
 
   centerSides(new_boxes, center_box)
 
   const new_scene = {
     ...scene,
+    connections: new_conns,
     boxes: new_boxes,
   }
 

@@ -21,7 +21,7 @@ export const bug2 = () => {
           .connect("C12.bottom", "GND")
           .addLrBox("BAT", { x: -4, y: -1 })
           .connect("U1G3.3", "BAT.right")
-          .connect("V2.bottom", "BAT.left")
+          .connect("V1", "BAT.left")
           .addTbBox("C6", { x: -5, y: 0 })
           .addTbBox("C5", { x: -6, y: 1 })
           .addTbBox("C4", { x: -7, y: 2 })
