@@ -2,7 +2,7 @@ import { Connection } from "../../types"
 import { Scene } from "../../scene"
 import { BoxWithAscendingIndex } from "../ascending-central-lr-bug-1"
 
-export function addBoxesForNetsRewriteNetsToSpecificAliases(
+export function addBoxesForNetsRewriteNetsToPlacedAliases(
   new_boxes: BoxWithAscendingIndex[],
   scene: Scene,
   netSet: Set<string>,

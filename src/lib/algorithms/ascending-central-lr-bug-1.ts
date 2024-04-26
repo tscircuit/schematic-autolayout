@@ -5,7 +5,7 @@ import { findBoxWithMostPorts } from "./sub-algorithms/findBoxWithMostPorts"
 import { slideBoxesConnectedToSameNet } from "./sub-algorithms/slideBoxesConnectedToSameNet"
 import { LayoutAlgorithm } from "./type"
 import { removeAscendingBoxIndexGaps } from "./sub-algorithms/removeAscendingBoxIndexGaps"
-import { addBoxesForNetsRewriteNetsToSpecificAliases } from "./sub-algorithms/addBoxesForNetsRewriteNetsToSpecificAliases"
+import { addBoxesForNetsRewriteNetsToPlacedAliases as addBoxesForNetsRewriteNetsToPlacedAliases } from "./sub-algorithms/addBoxesForNetsRewriteNetsToSpecificAliases"
 
 export type BoxWithAscendingIndex = Box & {
   side: "left"
@@ -114,12 +114,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
 
   // Add boxes representing the net, anything with the same ascending_box_index
   // can share the same net box
-  addBoxesForNetsRewriteNetsToSpecificAliases(
-    new_boxes,
-    scene,
-    netSet,
-    new_conns
-  )
+  addBoxesForNetsRewriteNetsToPlacedAliases(new_boxes, scene, netSet, new_conns)
 
   centerSides(new_boxes, center_box)
 
