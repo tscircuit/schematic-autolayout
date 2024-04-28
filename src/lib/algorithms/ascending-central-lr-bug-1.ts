@@ -8,7 +8,7 @@ import { removeAscendingBoxIndexGaps } from "./sub-algorithms/removeAscendingBox
 import { addBoxesForNetsRewriteNetsToPlacedAliases as addBoxesForNetsRewriteNetsToPlacedAliases } from "./sub-algorithms/addBoxesForNetsRewriteNetsToSpecificAliases"
 
 export type BoxWithAscendingIndex = Box & {
-  side: "left"
+  side: "left" | "right"
   /**
    * How high from the bottom w.r.t. port connections
    */
@@ -33,14 +33,59 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   for (const box of new_boxes) {
     box.x = 0
     box.y = 0
-
-    box.side = "left" // TODO
   }
 
   // 1. Identify central box
   const center_box: Omit<Box, "ports"> & {
-    ports: Array<Port & { side: "left"; ascending_port_index: number }>
+    ports: Array<
+      Port & { side: "left" | "right"; ascending_port_index: number }
+    >
   } = findBoxWithMostPorts(new_boxes) as any
+
+  for (const port of center_box.ports) {
+    if (port.rx > 0) {
+      port.side = "right"
+    } else if (port.rx < 0) {
+      port.side = "left"
+    }
+  }
+
+  // 2. Find the side each box is on
+  for (const box of new_boxes) {
+    if (box.box_id === center_box.box_id) continue
+
+    const ports_box_is_connected_to = center_box.ports.filter((p) =>
+      new_conns.some(
+        (c) =>
+          (c.from.startsWith(box.box_id) && c.to === p.port_id) ||
+          (c.to.startsWith(box.box_id) && c.from === p.port_id)
+      )
+    )
+
+    if (ports_box_is_connected_to.length === 0) {
+      box.side = "left"
+      continue
+    }
+
+    // If the box shares ports majority on the left side, then box.side = "left"
+    // else it's on right
+    let left_count = 0
+    let right_count = 0
+
+    for (const port of ports_box_is_connected_to) {
+      if (port.rx > 0) {
+        right_count += 1
+      } else if (port.rx < 0) {
+        left_count += 1
+      }
+    }
+
+    if (left_count >= right_count) {
+      box.side = "left"
+    } else {
+      box.side = "right"
+    }
+  }
 
   // 2. Get the ascending indices of the boxes
   // for (const box of new_boxes) {
@@ -49,8 +94,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   // }
 
   for (const side of ["left", "right"]) {
-    if (side === "right") continue // TODO
-    const side_ports = center_box.ports // TODO
+    const side_ports = center_box.ports.filter((p) => p.side === side)
     side_ports.sort((a, b) => a.ry - b.ry)
     for (const port of side_ports) {
       port.ascending_port_index = side_ports.indexOf(port)
@@ -107,7 +151,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   for (const box of new_boxes) {
     if (box.box_id === center_box.box_id) continue
     box.y = box.ascending_box_index
-    box.x = -1.5 - box.ascending_box_index
+    box.x = (1.5 + box.ascending_box_index) * (box.side === "left" ? -1 : 1)
   }
 
   slideBoxesConnectedToSameNet(new_boxes, connMap, netSet, scene)

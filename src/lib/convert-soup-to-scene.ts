@@ -65,6 +65,7 @@ export const convertSoupToScene = (soup: AnySoupElement[]): Scene => {
   // iterate over soup, convert schematic_box to a scene box
   for (const schematic_component of soup_elm_map.schematic_component) {
     const ports: Port[] = []
+    const box_id = schematic_component.schematic_component_id
 
     // go through each port attached to the schematic box
     for (const sch_port of soup_elm_map.schematic_port) {
@@ -73,7 +74,7 @@ export const convertSoupToScene = (soup: AnySoupElement[]): Scene => {
         schematic_component.schematic_component_id
       ) {
         ports.push({
-          port_id: sch_port.schematic_port_id,
+          port_id: `${box_id}.${sch_port.schematic_port_id}`,
           rx: sch_port.center.x - schematic_component.center.x,
           ry: sch_port.center.y - schematic_component.center.y,
         })
@@ -81,7 +82,7 @@ export const convertSoupToScene = (soup: AnySoupElement[]): Scene => {
     }
 
     const box: Box = {
-      box_id: schematic_component.schematic_component_id,
+      box_id,
       x: schematic_component.center.x,
       y: schematic_component.center.y,
       ports,
@@ -90,12 +91,38 @@ export const convertSoupToScene = (soup: AnySoupElement[]): Scene => {
   }
 
   for (const source_trace of soup_elm_map.source_trace) {
-    const [spA, spB] = source_trace.connected_source_port_ids
-    // const connection: Connection = {
-    //   from: source_trace.source_port_id,
-    //   to: source_trace.schematic_port_id,
-    // }
-    // connections.push(connection)
+    const [sp_A, sp_B] = source_trace.connected_source_port_ids
+
+    const schp_A = soup_elm_map.schematic_port.find(
+      (sch_port) => sch_port.source_port_id === sp_A
+    )
+    const schp_B = soup_elm_map.schematic_port.find(
+      (sch_port) => sch_port.source_port_id === sp_B
+    )
+
+    if (!schp_A || !schp_B) {
+      continue
+    }
+
+    const schcomp_A = soup_elm_map.schematic_component.find(
+      (sch_comp) =>
+        sch_comp.schematic_component_id === schp_A.schematic_component_id
+    )
+    const schcomp_B = soup_elm_map.schematic_component.find(
+      (sch_comp) =>
+        sch_comp.schematic_component_id === schp_B.schematic_component_id
+    )
+
+    if (!schcomp_A || !schcomp_B) {
+      continue
+    }
+
+    const connection: Connection = {
+      from: `${schcomp_A.schematic_component_id}.${schp_A.schematic_port_id}`,
+      to: `${schcomp_B.schematic_component_id}.${schp_B.schematic_port_id}`,
+    }
+
+    connections.push(connection)
   }
 
   return {
