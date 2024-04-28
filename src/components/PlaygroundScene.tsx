@@ -3,9 +3,15 @@ import { AttachableBox } from "./AttachableBox"
 import { LinesCanvas } from "./LinesCanvas"
 import { Playground } from "./Playground"
 
-export const PlaygroundScene = ({ scene }: { scene: Scene }) => {
+export const PlaygroundScene = ({
+  scene,
+  height,
+}: {
+  scene: Scene
+  height?: number
+}) => {
   return (
-    <Playground>
+    <Playground height={height}>
       {scene.boxes.map((b) => {
         const minX = b.ports.reduce((acc, p) => Math.min(acc, p.rx), 0)
         const maxX = b.ports.reduce((acc, p) => Math.max(acc, p.rx), 0)
