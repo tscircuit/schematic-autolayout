@@ -143,10 +143,12 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   // Remove box_index "gaps", e.g. if no boxes have index 1, then every index >1
   // should be decremented by 1
   // TODO: this is an N^2 algorithm, easily can be made N
-  highest_ascending_box_index = removeAscendingBoxIndexGaps(
-    highest_ascending_box_index,
-    new_boxes
-  )
+  for (const side of ["left", "right"]) {
+    removeAscendingBoxIndexGaps(
+      highest_ascending_box_index,
+      new_boxes.filter((b) => b.side === side)
+    )
+  }
 
   for (const box of new_boxes) {
     if (box.box_id === center_box.box_id) continue

@@ -2,6 +2,20 @@ import { Connection } from "../../types"
 import { Scene } from "../../scene"
 import { BoxWithAscendingIndex } from "../ascending-central-lr-bug-1"
 
+/**
+ * This algorithm rewrites nets to placed net aliases, creating net alias
+ * symbols (boxes) on the schematic then connecting the traces to them.
+ *
+ * The algorithm works by going through each "ascending index" on each side,
+ * so each row 0, 1, 2, 3 etc. on the left and right sides. It then looks for
+ * all the boxes on that row and checks if they have any common nets (where
+ * each box shares a net). It will then create a net alias box that represents
+ * the shared net, and net alias boxes for any other nets above the element.
+ *
+ * So sometimes there's a "common net" where we make 1 net alias for e.g. 4 boxes,
+ * but sometimes we have to create a net alias for each box because they don't
+ * all share the same net.
+ */
 export function addBoxesForNetsRewriteNetsToPlacedAliases(
   new_boxes: BoxWithAscendingIndex[],
   scene: Scene,
@@ -11,7 +25,7 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
   const highest_ascending_box_index = Math.max(
     ...new_boxes.map((b) => b.ascending_box_index).filter((b) => !isNaN(b))
   )
-  for (const side of ["left", "right"]) {
+  for (const side of ["left", "right"] as const) {
     for (let i = 0; i <= highest_ascending_box_index; i++) {
       const boxes_on_same_index = new_boxes
         .filter((b) => b.side === side)
@@ -28,9 +42,11 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
       const connections_on_index: string[][] = boxes_on_same_index.map((b) =>
         scene.connections
           .filter(
-            (c) => c.from.startsWith(b.box_id) || c.to.startsWith(b.box_id)
+            (c) =>
+              c.from.startsWith(b.box_id + ".") ||
+              c.to.startsWith(b.box_id + ".")
           )
-          .map((c) => (c.from.startsWith(b.box_id) ? c.to : c.from))
+          .map((c) => (c.from.startsWith(b.box_id + ".") ? c.to : c.from))
       )
 
       /**
@@ -59,9 +75,18 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
 
       const x = minOrMaxFunc(...boxes_on_same_index.map((b) => b.x))
 
+      console.log(boxes_on_same_index.map((b) => b.box_id).join(","), {
+        side,
+        i,
+        common_net_ids,
+        net_connections,
+        common_nets,
+        x,
+      })
+
       for (const common_net of common_nets) {
         const y = i + (common_net?.is_ground ? -1 : 1)
-        const box_id = `${common_net?.net_id}_${i}`
+        const box_id = `${common_net?.net_id}_${side === "left" ? "L" : "R"}_${i}`
         const port_id = common_net?.is_ground
           ? `${box_id}.top`
           : `${box_id}.bottom`
@@ -69,7 +94,7 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
           box_id,
           x,
           y,
-          side: "left",
+          side,
           ascending_port_index: 0,
           ascending_box_index: i,
           ports: [
@@ -85,7 +110,9 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
         // Replace the $NET connection with a "$box_id.top" connection
         for (const box of boxes_on_same_index) {
           const box_conns = new_conns.filter(
-            (c) => c.from.startsWith(box.box_id) || c.to.startsWith(box.box_id)
+            (c) =>
+              c.from.startsWith(box.box_id + ".") ||
+              c.to.startsWith(box.box_id + ".")
           )
           for (const conn of box_conns) {
             if (conn.from === common_net.net_id) {
@@ -109,13 +136,13 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
         // introduce a box and connection directly above the port/box
         for (const hanging_net_id of hanging_net_connections_for_box) {
           const net = scene.nets.find((n) => n.net_id === hanging_net_id)!
-          const box_id = `${hanging_net_id}_${box.ascending_box_index}_${bi}`
+          const box_id = `${hanging_net_id}_${box.ascending_box_index}_${side === "left" ? "L" : "R"}_${bi}`
           const port_id = `${box_id}.${net.is_ground ? "top" : "bottom"}`
 
           const net_box: BoxWithAscendingIndex = {
             x: box.x,
             y: box.y + (net.is_ground ? -1 : 1),
-            side: "left",
+            side,
             ascending_port_index: 0,
             ascending_box_index: box.ascending_box_index,
             box_id,
