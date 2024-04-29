@@ -17,6 +17,8 @@ export type BoxWithAscendingIndex = Box & {
    * How high from the bottom this box should be ordered
    */
   ascending_box_index: number
+
+  width: number
 }
 
 export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
@@ -33,6 +35,16 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   for (const box of new_boxes) {
     box.x = 0
     box.y = 0
+    let smallest_port_rx = 0,
+      largest_port_rx = 0
+    for (const port of box.ports) {
+      if (port.rx < smallest_port_rx) {
+        smallest_port_rx = port.rx
+      } else if (port.rx > largest_port_rx) {
+        largest_port_rx = port.rx
+      }
+    }
+    box.width = largest_port_rx - smallest_port_rx
   }
 
   // 1. Identify central box
@@ -150,10 +162,24 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
     )
   }
 
-  for (const box of new_boxes) {
-    if (box.box_id === center_box.box_id) continue
-    box.y = box.ascending_box_index
-    box.x = (1.5 + box.ascending_box_index) * (box.side === "left" ? -1 : 1)
+  for (const side of ["left", "right"]) {
+    let travel_x = 0
+    for (let i = 0; i <= highest_ascending_box_index; i++) {
+      const boxes_on_same_index = new_boxes.filter(
+        (b) => b.side === side && b.ascending_box_index === i
+      )
+      const widest_box_width = Math.max(
+        ...boxes_on_same_index.map((b) => b.width)
+      )
+      const dist_to_last_col =
+        Math.max(1.5, widest_box_width + 1) * (side === "left" ? -1 : 1)
+      travel_x += dist_to_last_col
+      for (const box of boxes_on_same_index) {
+        if (box.box_id === center_box.box_id) continue
+        box.y = box.ascending_box_index
+        box.x = travel_x
+      }
+    }
   }
 
   slideBoxesConnectedToSameNet(new_boxes, connMap, netSet, scene)
