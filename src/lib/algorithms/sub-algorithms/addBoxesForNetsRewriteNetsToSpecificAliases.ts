@@ -75,15 +75,6 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
 
       const x = minOrMaxFunc(...boxes_on_same_index.map((b) => b.x))
 
-      console.log(boxes_on_same_index.map((b) => b.box_id).join(","), {
-        side,
-        i,
-        common_net_ids,
-        net_connections,
-        common_nets,
-        x,
-      })
-
       for (const common_net of common_nets) {
         const y = i + (common_net?.is_ground ? -1 : 1)
         const box_id = `${common_net?.net_id}_${side === "left" ? "L" : "R"}_${i}`
@@ -97,6 +88,7 @@ export function addBoxesForNetsRewriteNetsToPlacedAliases(
           side,
           ascending_port_index: 0,
           ascending_box_index: i,
+          width: 0,
           ports: [
             {
               port_id,

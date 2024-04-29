@@ -52,6 +52,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
     ports: Array<
       Port & { side: "left" | "right"; ascending_port_index: number }
     >
+    width: number
   } = findBoxWithMostPorts(new_boxes) as any
 
   for (const port of center_box.ports) {
@@ -163,7 +164,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   }
 
   for (const side of ["left", "right"]) {
-    let travel_x = 0
+    let travel_x = center_box.width * 0.75 * (side === "left" ? -1 : 1)
     for (let i = 0; i <= highest_ascending_box_index; i++) {
       const boxes_on_same_index = new_boxes.filter(
         (b) => b.side === side && b.ascending_box_index === i
@@ -172,13 +173,14 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
         ...boxes_on_same_index.map((b) => b.width)
       )
       const dist_to_last_col =
-        Math.max(1.5, widest_box_width + 1) * (side === "left" ? -1 : 1)
+        Math.max(0.5, widest_box_width) * (side === "left" ? -1 : 1)
       travel_x += dist_to_last_col
       for (const box of boxes_on_same_index) {
         if (box.box_id === center_box.box_id) continue
         box.y = box.ascending_box_index
         box.x = travel_x
       }
+      travel_x += dist_to_last_col / 2
     }
   }
 
