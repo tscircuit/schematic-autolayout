@@ -59,19 +59,27 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
           const connected_port_box = boxes.find((b) =>
             other_conn_for_port.startsWith(b.box_id + ".")
           )!
-          const connected_port = connected_port_box?.ports.find(
+          const connected_ports = connected_port_box?.ports.filter(
             (p) => p.port_id === other_conn_for_port
           )! as Port & { x: number; y: number }
 
-          connected_port.x = connected_port_box.x + connected_port.rx
-          connected_port.y = connected_port_box.y + connected_port.ry
+          for (const connected_port of connected_ports) {
+            connected_port.x = connected_port_box.x + connected_port.rx
+            connected_port.y = connected_port_box.y + connected_port.ry
+          }
 
           return {
             ...port,
-            connected_port,
+            connected_port: connected_ports[0],
+            connected_ports,
           } as any
         })
         .filter(Boolean)
+
+      // No ports with connections
+      if (ports.length === 0) {
+        continue
+      }
 
       // get the pull vector of each port for each rotation
       const possible_box_rotations: ExtendedBox[] = getAllPossibleBoxRotations({

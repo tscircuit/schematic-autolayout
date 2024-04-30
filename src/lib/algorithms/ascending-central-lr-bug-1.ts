@@ -6,6 +6,7 @@ import { slideBoxesConnectedToSameNet } from "./sub-algorithms/slideBoxesConnect
 import { LayoutAlgorithm } from "./type"
 import { removeAscendingBoxIndexGaps } from "./sub-algorithms/removeAscendingBoxIndexGaps"
 import { addBoxesForNetsRewriteNetsToPlacedAliases as addBoxesForNetsRewriteNetsToPlacedAliases } from "./sub-algorithms/addBoxesForNetsRewriteNetsToSpecificAliases"
+import { autoRotateTwoPortBoxes } from "./auto-rotate-two-port-boxes"
 
 export type BoxWithAscendingIndex = Box & {
   side: "left" | "right"
@@ -197,6 +198,8 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
     connections: new_conns,
     boxes: new_boxes,
   }
+
+  autoRotateTwoPortBoxes(new_scene)
 
   return new_scene
   // return alignTbBoxesWithNetConnection(new_scene)
