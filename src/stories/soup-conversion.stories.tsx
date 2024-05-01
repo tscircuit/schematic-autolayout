@@ -6,6 +6,7 @@ import { Schematic } from "@tscircuit/schematic-viewer"
 import { soup1 } from "./soup-conversion/soup1"
 import { convertSoupToScene } from "../lib/convert-soup-to-scene"
 import { ascendingCentralLrBug1 } from "../lib/algorithms/ascending-central-lr-bug-1"
+import { convertSceneToSoup } from "../lib/convert-scene-to-soup"
 
 export const SoupConversion = () => {
   return (
@@ -20,6 +21,13 @@ export const SoupConversion = () => {
         scene={ascendingCentralLrBug1(convertSoupToScene(soup1 as any))}
       />
       <h2>Soup After</h2>
+      <Schematic
+        style={{ height: 400 }}
+        soup={convertSceneToSoup(
+          soup1 as any,
+          ascendingCentralLrBug1(convertSoupToScene(soup1 as any))
+        )}
+      />
     </div>
   )
 }
