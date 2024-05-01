@@ -30,11 +30,13 @@ export const AutoRotate = () => {
     .addLrBox("O", { x: 12, y: -0.2 })
     .addLrBox("P", { x: 12, y: 0 })
     .addLrBox("Q", { x: 12, y: 0.2 })
+    .addLrBox("R", { x: 12, y: -0.4 })
     .connect("L.top", "M.bottom")
     .connect("L.bottom", "N.top")
     .connect("L.top", "O.left")
     .connect("L.top", "P.left")
     .connect("L.top", "Q.left")
+    .connect("L.top", "R.left")
     .build()
   return (
     <div>

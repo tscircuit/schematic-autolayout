@@ -11,7 +11,7 @@ export const Playground = ({
   height?: number
 }) => {
   const { transform, ref } = useMouseMatrixTransform({
-    initialTransform: compose(scale(100, -100), translate(10, -4)),
+    initialTransform: compose(scale(100, -100), translate(-8, -2)),
   })
 
   return (

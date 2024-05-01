@@ -6,6 +6,7 @@ type ExtendedPort = Port & {
   x: number
   y: number
   connected_port: { x: number; y: number }
+  connected_ports: Array<{ x: number; y: number }>
 }
 
 type ExtendedBox = Box & {
@@ -61,7 +62,7 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
           )!
           const connected_ports = connected_port_box?.ports.filter(
             (p) => p.port_id === other_conn_for_port
-          )! as Port & { x: number; y: number }
+          ) as Array<Port & { x: number; y: number }>
 
           for (const connected_port of connected_ports) {
             connected_port.x = connected_port_box.x + connected_port.rx
@@ -90,21 +91,25 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
       for (const box of possible_box_rotations) {
         box.natural_offset_sum_deg = 0
         for (const port of box.ports) {
-          const pull_vector = normalizeVec({
-            x: port.connected_port.x - (box.x + port.rx),
-            y: port.connected_port.y - (box.y + port.ry),
-          })
-          const natural_vector = normalizeVec({
-            x: port.rx,
-            y: port.ry,
-          })
-          // calculate the angle between the pull vector and the natural vector
-          const dot =
-            pull_vector.x * natural_vector.x + pull_vector.y * natural_vector.y
-          const det =
-            pull_vector.x * natural_vector.y - pull_vector.y * natural_vector.x
-          const angle = Math.atan2(det, dot) * (180 / Math.PI)
-          box.natural_offset_sum_deg += Math.abs(angle)
+          for (const connected_port of port.connected_ports) {
+            const pull_vector = normalizeVec({
+              x: port.connected_port.x - (box.x + port.rx),
+              y: port.connected_port.y - (box.y + port.ry),
+            })
+            const natural_vector = normalizeVec({
+              x: port.rx,
+              y: port.ry,
+            })
+            // calculate the angle between the pull vector and the natural vector
+            const dot =
+              pull_vector.x * natural_vector.x +
+              pull_vector.y * natural_vector.y
+            const det =
+              pull_vector.x * natural_vector.y -
+              pull_vector.y * natural_vector.x
+            const angle = Math.atan2(det, dot) * (180 / Math.PI)
+            box.natural_offset_sum_deg += Math.abs(angle)
+          }
         }
       }
 
