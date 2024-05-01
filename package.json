@@ -1,7 +1,7 @@
 {
-  "name": "autolayout",
+  "name": "@tscircuit/schematic-autolayout",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "start": "storybook dev -p 6006",
