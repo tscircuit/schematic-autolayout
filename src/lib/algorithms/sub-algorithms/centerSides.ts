@@ -16,7 +16,7 @@ export function centerSides(
 
     for (const box of side_boxes) {
       if (box.box_id === center_box.box_id) continue
-      box.y -= max_ascending_index / 2
+      box.y -= (max_ascending_index / 2) * 1.25
     }
   }
 }

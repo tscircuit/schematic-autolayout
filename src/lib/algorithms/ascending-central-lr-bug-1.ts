@@ -178,7 +178,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
       travel_x += dist_to_last_col
       for (const box of boxes_on_same_index) {
         if (box.box_id === center_box.box_id) continue
-        box.y = box.ascending_box_index
+        box.y = box.ascending_box_index * 1.25
         box.x = travel_x
       }
       travel_x += dist_to_last_col / 2

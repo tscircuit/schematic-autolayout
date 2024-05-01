@@ -6,12 +6,14 @@ import { Playground } from "./Playground"
 export const PlaygroundScene = ({
   scene,
   height,
+  center,
 }: {
   scene: Scene
   height?: number
+  center?: { x: number; y: number }
 }) => {
   return (
-    <Playground height={height}>
+    <Playground height={height} center={center}>
       {scene.boxes.map((b) => {
         const minX = b.ports.reduce((acc, p) => Math.min(acc, p.rx), 0)
         const maxX = b.ports.reduce((acc, p) => Math.max(acc, p.rx), 0)

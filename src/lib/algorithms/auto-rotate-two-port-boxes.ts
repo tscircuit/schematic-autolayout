@@ -51,20 +51,24 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
       // connects to.
       const ports: ExtendedPort[] = box.ports
         .map((port) => {
-          // TODO handle multiple connections out of a single port
-          const other_conn_for_port = scene.connections
+          const connected_port_ids = scene.connections
             .filter((c) => c.from === port.port_id || c.to === port.port_id)
-            .map((c) => (c.from === port.port_id ? c.to : c.from))[0]
+            .map((c) => (c.from === port.port_id ? c.to : c.from))
 
-          if (!other_conn_for_port) return null
-          const connected_port_box = boxes.find((b) =>
-            other_conn_for_port.startsWith(b.box_id + ".")
+          if (connected_port_ids.length === 0) return null
+          const connected_port_boxes = boxes.filter((b) =>
+            connected_port_ids.some((id) => id.startsWith(b.box_id + "."))
           )!
-          const connected_ports = connected_port_box?.ports.filter(
-            (p) => p.port_id === other_conn_for_port
-          ) as Array<Port & { x: number; y: number }>
+          const connected_ports = connected_port_boxes
+            .flatMap((cpb) => cpb.ports)
+            ?.filter((p) => connected_port_ids.includes(p.port_id)) as Array<
+            Port & { x: number; y: number }
+          >
 
           for (const connected_port of connected_ports) {
+            const connected_port_box = connected_port_boxes.find(
+              (b) => b.box_id === connected_port.port_id.split(".")[0]
+            )!
             connected_port.x = connected_port_box.x + connected_port.rx
             connected_port.y = connected_port_box.y + connected_port.ry
           }
@@ -93,13 +97,17 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
         for (const port of box.ports) {
           for (const connected_port of port.connected_ports) {
             const pull_vector = normalizeVec({
-              x: port.connected_port.x - (box.x + port.rx),
-              y: port.connected_port.y - (box.y + port.ry),
+              x: connected_port.x - (box.x + port.rx),
+              y: connected_port.y - (box.y + port.ry),
             })
             const natural_vector = normalizeVec({
               x: port.rx,
               y: port.ry,
             })
+            const dist = Math.sqrt(
+              (pull_vector.x - natural_vector.x) ** 2 +
+                (pull_vector.y - natural_vector.y) ** 2
+            )
             // calculate the angle between the pull vector and the natural vector
             const dot =
               pull_vector.x * natural_vector.x +
@@ -108,7 +116,7 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
               pull_vector.x * natural_vector.y -
               pull_vector.y * natural_vector.x
             const angle = Math.atan2(det, dot) * (180 / Math.PI)
-            box.natural_offset_sum_deg += Math.abs(angle)
+            box.natural_offset_sum_deg += Math.abs(angle) / dist
           }
         }
       }
@@ -117,6 +125,8 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
       const best_rotation = possible_box_rotations.reduce((a, b) =>
         a.natural_offset_sum_deg < b.natural_offset_sum_deg ? a : b
       )
+
+      console.log(best_rotation.applied_rotation_deg)
 
       rotateBox(box, best_rotation.applied_rotation_deg)
     }

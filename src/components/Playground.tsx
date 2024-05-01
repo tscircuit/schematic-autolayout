@@ -5,13 +5,15 @@ import { scale, compose, translate } from "transformation-matrix"
 
 export const Playground = ({
   children,
+  center = { x: 0, y: 0 },
   height = 1000,
 }: {
   children: any
+  center?: { x: number; y: number }
   height?: number
 }) => {
   const { transform, ref } = useMouseMatrixTransform({
-    initialTransform: compose(scale(100, -100), translate(-8, -2)),
+    initialTransform: compose(scale(100, -100), translate(center.x, center.y)),
   })
 
   return (
