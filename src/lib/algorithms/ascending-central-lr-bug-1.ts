@@ -143,6 +143,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
   }
 
   let highest_ascending_box_index = Math.max(
+    0,
     ...new_boxes.map((b) => b.ascending_box_index).filter((bi) => !isNaN(bi))
   )
 

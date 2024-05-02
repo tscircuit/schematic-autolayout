@@ -7,7 +7,14 @@ export const convertSceneToSoup = (
   og_soup: AnySoupElement[],
   scene: Scene
 ): AnySoupElement[] => {
-  const soup: AnySoupElement[] = JSON.parse(JSON.stringify(og_soup))
+  return mutateSoupForScene(JSON.parse(JSON.stringify(og_soup)), scene)
+}
+
+export const mutateSoupForScene = (
+  og_soup: AnySoupElement[],
+  scene: Scene
+): AnySoupElement[] => {
+  const soup: AnySoupElement[] = og_soup
 
   // Modify the soup to reflect the modifications made in the scene
   for (const box of scene.boxes) {
