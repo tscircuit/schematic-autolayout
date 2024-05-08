@@ -126,8 +126,6 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
         a.natural_offset_sum_deg < b.natural_offset_sum_deg ? a : b
       )
 
-      console.log(best_rotation.applied_rotation_deg)
-
       rotateBox(box, best_rotation.applied_rotation_deg)
     }
   }
