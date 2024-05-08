@@ -1,6 +1,6 @@
 # @tscircuit/autolayout
 
-[Visual Examples](#)
+[Visual Examples](https://autolayout.tscircuit.com)
 
 Algorithms for automatic layout PCBs and Schematics
 
