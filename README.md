@@ -1,4 +1,4 @@
-# @tscircuit/autolayout
+# @tscircuit/schematic-autolayout
 
 [Visual Examples](https://autolayout.tscircuit.com)
 
