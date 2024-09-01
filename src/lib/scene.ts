@@ -35,7 +35,7 @@ class SceneBuilder {
 
   addCcwBox(
     box_id: string,
-    opts: { x: number; y: number; leftPorts: number; rightPorts: number }
+    opts: { x: number; y: number; leftPorts: number; rightPorts: number },
   ) {
     const box: Box = {
       box_id,

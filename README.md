@@ -6,7 +6,43 @@ Algorithms for automatic layout PCBs and Schematics
 
 For routing algorithms, see [@tscircuit/routing](https://github.com/tscircuit/routing)
 
-## Work In Progress
+## Usage
+
+To use this library in your project:
+
+1. Install the package:
+
+```bash
+npm install @tscircuit/schematic-autolayout
+```
+
+2. Import the necessary functions:
+
+```typescript
+import { scene, ascendingCentralLrBug1 } from "@tscircuit/schematic-autolayout"
+```
+
+3. Create a scene and apply the layout algorithm:
+
+```typescript
+const myScene = scene()
+  .addCcwBox("U1", { x: 0, y: 0, leftPorts: 3, rightPorts: 3 })
+  .addLrBox("R1", { x: -2, y: 0 })
+  .connect("U1.1", "R1.right")
+  .build()
+
+const layoutedScene = ascendingCentralLrBug1(myScene)
+```
+
+4. Use the layouted scene in your application, for example with a renderer:
+
+```typescript
+import { PlaygroundScene } from "@tscircuit/schematic-autolayout"
+
+function MyComponent() {
+  return <PlaygroundScene scene={layoutedScene} />
+}
+```
 
 ## Main Layout
 
