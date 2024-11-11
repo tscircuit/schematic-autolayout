@@ -1,14 +1,13 @@
 import type {
-  AnySoupElement,
-  SchematicBox,
+  AnyCircuitElement,
   SchematicComponent,
   SchematicPort,
   SchematicTrace,
   SourcePort,
-  SourceTrace,
-} from "@tscircuit/builder"
+  SourceTrace
+} from "circuit-json"
 import { Scene } from "./scene"
-import { Box, Port, Connection, Net } from "./types"
+import { Box, Connection, Port } from "./types"
 
 /*
 export type Connection = {
@@ -39,7 +38,7 @@ export type Net = {
 /**
  * Convert tscircuit soup to a scene
  */
-export const convertSoupToScene = (soup: AnySoupElement[]): Scene => {
+export const convertSoupToScene = (soup: AnyCircuitElement[]): Scene => {
   const boxes: Scene["boxes"] = []
   const connections: Scene["connections"] = []
   const nets: Scene["nets"] = []

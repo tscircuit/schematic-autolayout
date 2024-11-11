@@ -1,20 +1,20 @@
-import { AnySoupElement, SchematicComponent } from "@tscircuit/builder"
+import { AnyCircuitElement, SchematicComponent } from "circuit-json"
 import { Scene } from "./scene"
-import { transformSchematicElement } from "@tscircuit/builder"
+import { transformSchematicElement } from "@tscircuit/soup-util"
 import { translate } from "transformation-matrix"
 
 export const convertSceneToSoup = (
-  og_soup: AnySoupElement[],
+  og_soup: AnyCircuitElement[],
   scene: Scene
-): AnySoupElement[] => {
+): AnyCircuitElement[] => {
   return mutateSoupForScene(JSON.parse(JSON.stringify(og_soup)), scene)
 }
 
 export const mutateSoupForScene = (
-  og_soup: AnySoupElement[],
+  og_soup: AnyCircuitElement[],
   scene: Scene
-): AnySoupElement[] => {
-  const soup: AnySoupElement[] = og_soup
+): AnyCircuitElement[] => {
+  const soup: AnyCircuitElement[] = og_soup
 
   // Modify the soup to reflect the modifications made in the scene
   for (const box of scene.boxes) {
