@@ -1,6 +1,6 @@
 import { AnyCircuitElement, SchematicComponent } from "circuit-json"
 import { Scene } from "./scene"
-import { transformSchematicElement } from "@tscircuit/builder"
+import { transformSchematicElement } from "@tscircuit/soup-util"
 import { translate } from "transformation-matrix"
 
 export const convertSceneToSoup = (

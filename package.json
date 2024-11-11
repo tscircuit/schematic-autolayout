@@ -18,13 +18,8 @@
     "measure-bundle": "howfat -r table ."
   },
   "dependencies": {
+    "@tscircuit/soup-util": "^0.0.38",
     "transformation-matrix": "^2.16.1"
-  },
-  "peerDependencies": {
-    "react": ">=18.2.0",
-    "react-dom": ">=18.2.0",
-    "@tscircuit/schematic-viewer": ">=1.2.3",
-    "circuit-json": ">=0.0.101"
   },
   "devDependencies": {
     "react-supergrid": "^1.0.10",
