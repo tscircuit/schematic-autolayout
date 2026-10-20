@@ -116,7 +116,8 @@ export const autoRotateTwoPortBoxes = (scene: Scene) => {
               pull_vector.x * natural_vector.y -
               pull_vector.y * natural_vector.x
             const angle = Math.atan2(det, dot) * (180 / Math.PI)
-            box.natural_offset_sum_deg += Math.abs(angle) / dist
+            box.natural_offset_sum_deg +=
+              dist === 0 ? 0 : Math.abs(angle) / dist
           }
         }
       }

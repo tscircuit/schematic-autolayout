@@ -54,7 +54,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
       Port & { side: "left" | "right"; ascending_port_index: number }
     >
     width: number
-  } = findBoxWithMostPorts(new_boxes) as any
+  } = findBoxWithMostPorts(new_boxes, new_conns) as any
 
   for (const port of center_box.ports) {
     if (port.rx > 0) {
@@ -71,13 +71,12 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
     const ports_box_is_connected_to = center_box.ports.filter((p) =>
       new_conns.some(
         (c) =>
-          (c.from.startsWith(box.box_id) && c.to === p.port_id) ||
-          (c.to.startsWith(box.box_id) && c.from === p.port_id)
+          (c.from.startsWith(box.box_id + ".") && c.to === p.port_id) ||
+          (c.to.startsWith(box.box_id + ".") && c.from === p.port_id)
       )
     )
 
     if (ports_box_is_connected_to.length === 0) {
-      box.side = "left"
       continue
     }
 
@@ -94,10 +93,44 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
       }
     }
 
-    if (left_count >= right_count) {
+    if (left_count > right_count) {
       box.side = "left"
-    } else {
+    } else if (right_count > left_count) {
       box.side = "right"
+    } else {
+      box.side = "left"
+    }
+  }
+
+  // Propagate side to transitively connected boxes
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const box of new_boxes) {
+      if (box.box_id === center_box.box_id || box.side) continue
+      const neighbor = new_boxes.find(
+        (other) =>
+          other.box_id !== center_box.box_id &&
+          other.side &&
+          new_conns.some(
+            (c) =>
+              (c.from.startsWith(box.box_id + ".") &&
+                c.to.startsWith(other.box_id + ".")) ||
+              (c.to.startsWith(box.box_id + ".") &&
+                c.from.startsWith(other.box_id + "."))
+          )
+      )
+      if (neighbor) {
+        box.side = neighbor.side
+        changed = true
+      }
+    }
+  }
+
+  for (const box of new_boxes) {
+    if (box.box_id === center_box.box_id) continue
+    if (!box.side) {
+      box.side = "left"
     }
   }
 
@@ -171,6 +204,7 @@ export const ascendingCentralLrBug1: LayoutAlgorithm = (scene) => {
       const boxes_on_same_index = new_boxes.filter(
         (b) => b.side === side && b.ascending_box_index === i
       )
+      if (boxes_on_same_index.length === 0) continue
       const widest_box_width = Math.max(
         ...boxes_on_same_index.map((b) => b.width)
       )
